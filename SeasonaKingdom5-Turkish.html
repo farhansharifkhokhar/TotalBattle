@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total Battle SK Rehberi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f4; /* stone-100 */
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            color: #d6d3d1; /* stone-300 */
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #115e59; /* teal-800 */
+            color: #ffffff;
+        }
+        .nav-link-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+            stroke-width: 2;
+        }
+        .content-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .content-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1c1917; /* stone-900 */
+            padding: 1.5rem;
+            border-bottom: 1px solid #e7e5e4; /* stone-200 */
+        }
+        .content-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0f766e; /* teal-700 */
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .content-card p, .content-card li {
+            color: #44403c; /* stone-700 */
+            line-height: 1.6;
+        }
+        .content-card ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .styled-table th, .styled-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e7e5e4; /* stone-200 */
+        }
+        .styled-table th {
+            background-color: #fafaf9; /* stone-50 */
+            color: #57534e; /* stone-600 */
+            font-weight: 600;
+        }
+        .styled-table tr:last-child td {
+            border-bottom: none;
+        }
+        .styled-table td strong {
+            color: #1c1917; /* stone-900 */
+            font-weight: 600;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .main-content {
+                height: 100vh;
+                overflow-y: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="flex flex-col lg:flex-row min-h-screen">
+        
+        <button id="mobileNavToggle" class="lg:hidden p-4 bg-gray-800 text-white fixed top-0 left-0 z-20">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+        </button>
+
+        <nav id="sidebar" class="bg-[#1c1917] text-white w-full lg:w-64 fixed lg:relative z-10 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col p-4 pt-16 lg:pt-6 h-full">
+            <h1 class="text-2xl font-bold text-white mb-6 px-4">SK Rehberi</h1>
+            <div class="space-y-2">
+                <a href="#overview" class="nav-link active" data-target="overview">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955a1.125 1.125 0 0 1 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504 1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                    <span>Genel Bakış</span>
+                </a>
+                <a href="#strategy" class="nav-link" data-target="strategy">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 0 1 9.75 19.875V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+                    <span>Muhafız (G) Seviye Stratejisi</span>
+                </a>
+                <a href="#accounts" class="nav-link" data-target="accounts">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A1.875 1.875 0 0 1 17.625 22.5h-11.25a1.875 1.875 0 0 1-1.875-2.382ZM19.5 11.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0v-2.25a.75.75 0 0 1 .75-.75Zm-6-1.5a.75.75 0 0 0-1.5 0v2.25a.75.75 0 0 0 1.5 0v-2.25Z" /></svg>
+                    <span>Hesaplar ve Göç</span>
+                </a>
+                <a href="#captains" class="nav-link" data-target="captains">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.602-3.748M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                    <span>Kaptan: Heimdall</span>
+                </a>
+                <a href="#spending" class="nav-link" data-target="spending">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V11.5a9 9 0 0 0-9-9Z" /></svg>
+                    <span>Harcama Stratejisi</span>
+                </a>
+                <a href="#points" class="nav-link" data-target="points">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9a9 9 0 0 0-9 9V9A9 9 0 0 0 9 0h6a9 9 0 0 1 9 9v9.75a9 9 0 0 1-9 9Zm-9-9a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" /></svg>
+                    <span>VP ve CP Optimizasyonu</span>
+                </a>
+                <a href="https://www.youtube.com/watch?v=keDsiIKeNIE" target="_blank" class="nav-link mt-4">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9A2.25 2.25 0 0 0 13.5 5.25h-9a2.25 2.25 0 0 0-2.25 2.25v9A2.25 2.25 0 0 0 4.5 18.75Z" /></svg>
+                    <span>Resmi Video</span>
+                </a>
+            </div>
+        </nav>
+
+        <main class="flex-1 p-4 pt-20 lg:pt-8 lg:p-8 main-content bg-stone-100">
+
+            <div id="overview" class="page-content">
+                <div class="content-card">
+                    <h2>🛡️ SK Genel Bakış ve Klan Beklentileri</h2>
+                    <div class="p-6">
+                        <p class="mb-4">Sezonluk Krallık (SK), ana şehriniz için kalıcı bonuslar (Kaptanlar, Eserler, Ekipman) kazandırmayı ve büyümeyi hızlandırmayı amaçlayan ayrı, yüksek hızlı bir örnektir. G4'ten G7'ye ilerleyen oyuncular için SK, tamamen **Değer Puanı (VP) kazanımı ve yüksek katılımlı klan faaliyetine** odaklanan büyük, ancak geçici bir strateji değişikliğidir.</p>
+                        
+                        <h3>Nasıl Oynanır ve Klan Hedefleri</h3>
+                        <p class="mb-2">SK, hızlandırılmış bina sürelerine (çoğu zaman Seviye 19'a kadar anlık) ve acil büyümeye odaklanan kaynaklara sahip **ROE (Çatışma Kuralı) olmayan** bir bölgedir.</p>
+                        <ul>
+                            <li class="mb-2">**Birincil Hedef:** Turnuva ödüllerini ve Sezonluk Kaptan parçalarını (Heimdall gibi) en üst düzeye çıkarmak için Muhafız (G) seviyenizi hızla G7'ye ve nihayetinde G9'a yükseltmek.</li>
+                            <li>**Klan Gerekliliği:** Başarılı olmak için güçlü, yüksek harcama yapan ve son derece aktif bir SK klanına katılmak **zorunludur**, özellikle F2P oyuncular için. Mevcut klanınız, **K257'den BAD**, aynı SK örneğine göç edecek ve yeniden kurulabilir.
+                                <ul class="mt-2">
+                                    <li>**BAD için Eylem:** Eğer BAD, özel bir SK klanı değilse, oyuncularının SK'ya girer girmez **geçici olarak en iyi SK klanına** (genellikle büyük harcamacılardan biri) katılması gerekir. Bu, düşük harcamacıların tek başına üretemediği temel klan sandıklarını, Kadim Teneke Adam (VP için) ve Kıyamet Ağacı akınlarını (CP/Kaynak için) sağlar.</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <h3>Geri Dönüş için Ana Senaryolar</h3>
+                        <div class="table-wrapper mt-4">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Senaryo</th>
+                                        <th>Açıklama ve Eylem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>**A) Yeni Sezon Dönüşü**</td>
+                                        <td>Yeni bir sezon başladığında, Seviye 1 şehir ilerlemesiyle **yepyeni bir SK örneği** başlatırsınız. Önceki sezonluk ilerlemeye *devam edemezsiniz*. Klanınız, yeni örneğe katılmak ve yeniden kurulmak için koordine olmalıdır. *Önceki* sezondan elde edilen tüm ödüller ana hesabınızın Mirası'na (Legacy) zaten aktarılmıştır.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**B) Bir Aradan Sonra Geri Dönüş (Sezon Ortası)**</td>
+                                        <td>Mevcut Sezonluk Şehir ilerlemeniz, sezon resmi olarak bitse bile süresiz olarak erişilebilir kalır. Ana girişinize bağlı **kalıcı bir "yedek şehir"** haline gelir. Ana krallıktan ayrı olarak, geliştirmeye devam etmek için istediğiniz zaman tekrar giriş yapabilirsiniz.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="strategy" class="page-content hidden">
+                <div class="content-card">
+                    <h2>📊 Muhafız (G) Seviye Stratejisi (G4-G7 Odaklı)</h2>
+                    <div class="p-6">
+                        <p class="mb-4">Bu bölüm, G4-G7 aşamalarında ilerleyen oyuncular için temel hedefleri özetlemektedir. Çekirdek strateji **"Ragnarok Hilesi"**dir: turnuva puanlarını Muhafız seviyesi atlaması sırasında en üst düzeye çıkarmak için Değer Puanlarını (VP) ve Kaptan TP'lerini bir Ragnarok etkinliğine kadar biriktirmek.</p>
+                        
+                        <div class="table-wrapper">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>İlerleme Aşaması</th>
+                                        <th>Temel SK Odağı ve Hedefleri</th>
+                                        <th>Ragnarok Sırasında Kritik Eylem</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>**G4'ten G5'e**</td>
+                                        <td>**Hedef:** SK giriş şartını (G5 birlik teknolojisi) karşılamak ve G5 Muhafız için Şehir Tekniğini hızla zorlamak.</td>
+                                        <td>Kadim Teneke Adam'a (VP için) ve Kurt/Helforge'a (Ragnarok paraları için) saldırın. Acil hedefiniz G6 atlamasına hazırlanmaktır.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**G5'ten G6'ya**</td>
+                                        <td>**Hedef:** **2. Kademe Paralı Askerleri (Yeşil Paralı Askerler)** açmak. Bunlar, verimli canavar avı için çok önemlidir. *Muhafız Araştırması* (Yürüyüş Boyutu, HP/Saldırı/Savunma Güçlendirmeleri) ve *Paralı Asker Araştırmasına* öncelik verin.</td>
+                                        <td>**Atlamayı Gerçekleştirin:** Ragnarok etkinliğinin ilgili turnuvası (örneğin, Güç) sırasında G6 Şehir Tekniği promosyonunu başlatmak için biriktirilmiş VP ve altını kullanın. Bu, turnuva puanınızı en üst düzeye çıkarır ve sizi daha yüksek seviyeli canavarları öldürme konumuna getirir.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**G6'dan G7'ye**</td>
+                                        <td>**Hedef:** **Birlik İstifleme** araştırmasına, Ordu/Canavar Modlarına odaklanmak ve Akademi Seviye 35 planlarını zorlamak. G7 birlik istatistikleri ve yürüyüş kapasitesi, VP/CP kazanma potansiyelinize büyük destekler sunar.</td>
+                                        <td>Bu atlamayı olabildiğince hızlı tamamlamak için biriktirilmiş VP'yi kullanın. Bu atlama, sonraki KvK/PvP etkinliklerinde en yüksek feth puanı (CP) ödülleri için rekabet etmenizi sağlar.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2>Temel İlerleme Engelleri</h2>
+                    <div class="p-6">
+                        <p class="mb-4">Yukarıdaki tablo, G5'ten G6'ya atlamanın en kritik aşama olduğunu göstermektedir. Bu, VP çiftçiliği yeteneğinizi temelden değiştiren 2. Kademe Paralı Askerleri açar. Bu grafik, her adım için gereken göreceli önemi ve odağı görselleştirir.</p>
+                        <div class="chart-container">
+                            <canvas id="gLevelChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="accounts" class="page-content hidden">
+                <div class="content-card">
+                    <h2>🧑‍🤝‍🧑 Hesaplar, Şehir Göçü ve Bölge</h2>
+                    <div class="p-6">
+                        <h3>Hesaplar</h3>
+                        <ul class="space-y-3">
+                            <li>
+                                <strong>Her İki Hesabı da Tutmak (Ana ve Sezonluk):</strong>
+                                <p><strong>Evet, ikisini de tutarsınız.</strong> SK ilerlemesi, mevcut Total Battle profilinize bağlı ayrı bir şehir örneğidir. Sezon bittiğinde, bu yeni şehir aynı giriş bilgileri kullanılarak geçiş yapabileceğiniz güçlü bir yedek/çiftlik şehri haline gelir.</p>
+                            </li>
+                            <li>
+                                <strong>Yeni SK Hesabı:</strong>
+                                <p><strong>Evet, Total Battle yeni şehir örneğini sağlar.</strong> SK'ya Seviye 1 şehir ve Seviye 2 Muhafız teknolojisi zaten tamamlanmış olarak başlarsınız.</p>
+                            </li>
+                        </ul>
+
+                        <h3 class="mt-6">Şehir Göçü ve Bölge</h3>
+                        <ul class="space-y-3">
+                            <li>
+                                <strong>Sezonluk Şehri Ana Klan Bölgesine Getirmek:</strong>
+                                <p><strong>SK aktifken hayır.</strong> Sezonluk Krallık, kendi rekabetçi etkinliklerini yürüten coğrafi olarak izole edilmiş bir haritadır.</p>
+                            </li>
+                            <li>
+                                <strong>Sezon Sonrası Göç:</strong>
+                                <p>Sezon sona erdiğinde, SK haritası sökülür ve Sezonluk Şehriniz Küresel Haritada standart bir şehir haline gelir. Ardından, şehri Küresel Haritadan ana krallığınızın (K257) içine ve sonra da klanınızın bölgesine taşımak için **Krallık Işınlayıcısı** (Altın ile satın alınan veya etkinliklerle kazanılan) kullanmanız gerekir.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="captains" class="page-content hidden">
+                <div class="content-card">
+                    <h2>🛡️ Kahraman/Kaptan Analizi: Heimdall</h2>
+                    <div class="p-6">
+                        <p class="mb-4">Heimdall, ana hesabınıza güçlü kalıcı güçlendirmeler sunan mevcut Sezonluk Kaptandır. Becerilerinin özellikleri sezona göre biraz değişebilir, ancak rolü tutarlı bir şekilde **üst düzey bir birlik komutanı ve savunma/saldırı güç merkezi** olmaktır.</p>
+                        <div class="table-wrapper">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Yön</th>
+                                        <th>Analiz ve Yaşayabilirlik</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>**Birincil Kullanım Senaryoları**</td>
+                                        <td>**Saldırı ve Savunma (PvP):** Sezonluk Kaptanlar, üst düzey PvP meta'sında alakalı olacak şekilde tasarlanmıştır. Heimdall'ın becerileri, birlik türlerini (örneğin, menzilli saldırı/HP, kuşatma savunması) büyük ölçüde etkileyecektir.<br><br>**PVE (Teneke Adam/Kıyamet Ağacı):** Canavar avı için kritik öneme sahiptir, çünkü genellikle yüksek Ordu Saldırısı veya Yürüyüş Hızı bonusları sağlayarak VP/CP getirilerinizi en üst düzeye çıkarır.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**Beceriler ve Yaşayabilirlik**</td>
+                                        <td>Sezon boyunca yaşayabilirliği **kritiktir**. Stratejiniz, mümkün olduğunca çok Heimdall parçası kazanmaktır. **1 yıldızlı bir Heimdall** bile, genellikle kolayca değiştirilemeyecek benzersiz Onur Listesi ilerleme faydaları sağlayarak önemli bir kalıcı güçlendirmedir.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**Açma/Odaklanma**</td>
+                                        <td>Hangi miras ödülünü (Heimdall, Eser veya Ekipman) en üst düzeye çıkarmak istediğinizi seçmelisiniz. Çoğu G4-G7 oyuncusu için, Heimdall'ı turnuva parçaları ve Geçiş ödülleri aracılığıyla en az **1 Yıldız'a** odaklamak en gerçekçi ve faydalı hedeftir.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="spending" class="page-content hidden">
+                <div class="content-card">
+                    <h2>💸 Parasal Strateji: F2P (Oynaması Ücretsiz) ve Küçük/Orta Harcamacı</h2>
+                    <div class="p-6">
+                        <p class="mb-6">SK, harcamayı ödüllendirmek için tasarlanmıştır, ancak akıllı seçimler düşük harcamacıları ve F2P oyuncuları önemli ölçüde güçlendirebilir. Bu bölüm, paket satın alımları için en iyi önerileri detaylandırır.</p>
+                        
+                        <div class="lg:grid lg:grid-cols-2 lg:gap-6">
+                            <div class="border border-stone-200 rounded-lg p-6 mb-4 lg:mb-0">
+                                <h3 class="mt-0 text-xl font-bold">Oynaması Ücretsiz (F2P)</h3>
+                                <p class="font-semibold text-teal-700">Öncelik: Hiçbiri</p>
+                                <p class="mt-2">**Etkinlik katılımını en üst düzeye çıkarın.** Pasif gümüş/kaynak sandıkları için güçlü bir klana katılmaya ve VP için Ragnarok/PvP etkinliğini en üst düzeye çıkarmaya güvenin. İlerlemeniz tamamen zaman yatırımı ve yüksek seviyeli klan faydalarını kullanmaktan gelir.</p>
+                            </div>
+                            <div class="border border-teal-600 bg-teal-50 rounded-lg p-6">
+                                <h3 class="mt-0 text-xl font-bold">Küçük/Orta Harcamacı</h3>
+                                <p class="font-semibold text-teal-700">Öncelikli Paketler:</p>
+                                <ul class="list-decimal pl-5 mt-2 space-y-2">
+                                    <li>**Altın Geçiş (ZORUNLU):** Dolar başına en yüksek Altın, kaynak ve parça değerini sunar.</li>
+                                    <li>**Başlangıç/Anlık İnşa Genişletme:** Erken aşamada *yüzlerce* saat hızlandırmadan tasarruf sağlar.</li>
+                                    <li>**Paralı Asker Paketleri:** (AT etkinliği sırasında mevcuttur). Yeşil Paralı Askerler (G6 açma), canavar öldürme verimliliğinizi önemli ölçüde artırır ve VP/CP gelirinizi doğrudan yükseltir.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-8">
+                            <h3>Önerilen Harcamacı Paket Odağı</h3>
+                            <p class="mb-4">Küçük harcamacılar için, "Altın Geçiş" en yüksek önceliğe sahiptir ve en iyi değeri sağlar. Bu grafik, maksimum etki için bütçenizi nereye odaklayacağınıza dair önerilen bir dökümü göstermektedir.</p>
+                            <div class="chart-container h-80 max-h-80">
+                                <canvas id="spendingChart"></canvas>
+                            </div>
+                        </div>
+
+                        <h3 class="mt-8">SK'da Kahramanları Açmak İçin Genel Yöntem</h3>
+                        <ul>
+                            <li>**Sezonluk Kaptanlar (Heimdall):** Parçalar, **Sezonluk Turnuva Sıralamalarından** (özellikle Ragnarok ve G-seviye hız koşuları) ve **Altın/Elit Geçişlerin** ücretli aşamasından kazanılır. Kazanılan parçalar, sezon sonunda ana şehriniz için kalıcı "Miras" parçalarına dönüşen geçici SK öğeleridir.</li>
+                            <li>**Mevcut Kaptanlar (Kleopatra, vb.):** Bu miras Kaptanlar için parçalar **Ragnarok Mağazasında** ve **CP Etkinlik Mağazasında** mevcuttur. Parçalarını satın almak için VP ve CP para birimini kullanın.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="points" class="page-content hidden">
+                <div class="content-card">
+                    <h2>🌟 VP ve CP Optimizasyonu (Değer ve Feth Puanları)</h2>
+                    <div class="p-6">
+                        <p class="mb-4">Tüm SK ilerlemeniz, iki temel kaynağı toplamaya bağlıdır: araştırma için Değer Puanları (VP) ve mağaza ödülleri için Feth Puanları (CP).</p>
+                        
+                        <div class="table-wrapper">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Puan Türü</th>
+                                        <th>Daha Fazla Nasıl Elde Edilir (Odak Eylemleri)</th>
+                                        <th>Birincil Kullanım ve SK Stratejisi</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>**Değer Puanları (VP)**</td>
+                                        <td>**1. Ragnarok (En İyi Kaynak):** Güç/Araştırma turnuvalarını en üst düzeye çıkarmak için G5->G6 ve G6->G7 Şehir promosyonlarınızı bu etkinlik sırasında gerçekleştirin.<br>**2. Kadim Teneke Adam (AT):** Bu Destansı Canavara sürekli saldırın. Başarıyla öldürebileceğiniz en yüksek seviyeli AT'ye saldırdığınızdan emin olun.</td>
+                                        <td>**Kritik Kullanım: Muhafız Araştırması.** Yeni birlik türlerinin (G6'da T2 Paralı Askerler) kilidini açmaya, yürüyüş boyutunu artırmaya ve Ordu Saldırısı/HP/Savunma güçlendirmelerinin kilidini açmaya yönelik neredeyse tüm VP'yi yönlendirin.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**Feth Puanları (CP)**</td>
+                                        <td>**1. Krallık Krallığa Karşı (KvK) / PvP:** Düşman birliklerini öldürerek kazanılır.<br>**2. Yeni CP Etkinlikleri:** Sezonlar her zaman yeni bir CP odaklı canavar (örneğin, Kıyamet Ağacı veya Yolsuzluğun Yankısı) içerir.<br>**3. Kıyamet Ağacı:** Bu Destansı Canavara akın yapmak, büyük bir CP kaynağıdır.</td>
+                                        <td>**Kritik Kullanım: Etkinlik Mağazası Ödülleri.** CP, öncelikle Ordu/Canavar Modlarını, kaynak sandıklarını ve Sezonluk ve Miras Kaptanları/Eserleri için parçaları satın almak için kullanılır.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h3 class="mt-6">Maksimum VP/CP Kazanımı için Öncelikli SK Etkinlikleri</h3>
+                        <ol class="list-decimal pl-5 space-y-3">
+                            <li>
+                                **Ragnarok:**
+                                <p>**VP için En Yüksek Öncelik.** Muhafız terfi atlamalarınızı bu etkinliğe göre planlamalısınız. VP ve Kaptan TP'sini biriktirin, ardından puanınızı artırmak için her şeyi etkinlik *sırasında* harcayın.</p>
+                            </li>
+                            <li>
+                                **CP Etkinlikleri (KvK, Kıyamet Ağacı, Yankı):**
+                                <p>**CP/Kaynaklar için En Yüksek Öncelik.** KvK'ya (klanınız rekabetçiyse) yoğun bir şekilde katılın ve mevsimlik CP canavarına (Kıyamet Ağacı/Yankı) aktif olarak akın yapın. Bu para birimi, araştırmanızı ve inşaatınızı desteklemek için gereken kaynakları güvence altına alır.</p>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.page-content');
+            const mobileNavToggle = document.getElementById('mobileNavToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            function showPage(targetId) {
+                pages.forEach(page => {
+                    if (page.id === targetId) {
+                        page.classList.remove('hidden');
+                    } else {
+                        page.classList.add('hidden');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    if (link.dataset.target === targetId) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+            }
+
+            navLinks.forEach(link => {
+                if(link.target !== '_blank') {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetId = link.dataset.target;
+                        showPage(targetId);
+                        
+                        if (window.innerWidth < 1024) {
+                            sidebar.classList.add('-translate-x-full');
+                        }
+
+                        if (targetId === 'strategy') {
+                            createGLevelChart();
+                        }
+                        if (targetId === 'spending') {
+                            createSpenderChart();
+                        }
+                    });
+                }
+            });
+
+            mobileNavToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth < 1024) {
+                    if (!sidebar.contains(e.target) && !mobileNavToggle.contains(e.target)) {
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                }
+            });
+
+            showPage('overview');
+
+            let gLevelChartInstance = null;
+            let spendingChartInstance = null;
+            
+            function wrapLabels(ctx, text, maxWidth) {
+                if (typeof text !== 'string') {
+                    return [text];
+                }
+                const words = text.split(' ');
+                const lines = [];
+                let currentLine = words[0];
+                for (let i = 1; i < words.length; i++) {
+                    const word = words[i];
+                    const width = ctx.measureText(currentLine + ' ' + word).width;
+                    if (width < maxWidth) {
+                        currentLine += ' ' + word;
+                    } else {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    }
+                }
+                lines.push(currentLine);
+                return lines;
+            }
+
+            function createGLevelChart() {
+                const ctx = document.getElementById('gLevelChart');
+                if (!ctx) return;
+                if (gLevelChartInstance) {
+                    gLevelChartInstance.destroy();
+                }
+                gLevelChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['G4\'ten G5\'e', 'G5\'ten G6\'ya', 'G6\'dan G7\'ye'],
+                        datasets: [{
+                            label: 'Göreceli Önem / Odak',
+                            data: [3, 10, 7],
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(20, 184, 166, 0.7)',
+                                'rgba(249, 115, 22, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(20, 184, 166, 1)',
+                                'rgba(249, 115, 22, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.x !== null) {
+                                            label += context.parsed.x;
+                                        }
+                                        if(context.label === 'G5\'ten G6\'ya') {
+                                            return [label, 'Kritik: K2 Paralı Askerleri Açılır'];
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Göreceli Odak Seviyesi'
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    autoSkip: false,
+                                    callback: function(value) {
+                                        const maxWidth = 100;
+                                        const text = this.getLabelForValue(value);
+                                        return wrapLabels(this.ctx, text, maxWidth);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function createSpenderChart() {
+                const ctx = document.getElementById('spendingChart');
+                if (!ctx) return;
+                if (spendingChartInstance) {
+                    spendingChartInstance.destroy();
+                }
+                spendingChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Altın Geçiş (Zorunlu)', 'Başlangıç / Anlık İnşa Paketleri', 'Paralı Asker Paketleri'],
+                        datasets: [{
+                            label: 'Önerilen Bütçe Odağı',
+                            data: [60, 25, 15],
+                            backgroundColor: [
+                                'rgba(20, 184, 166, 0.7)',
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(249, 115, 22, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(20, 184, 166, 1)',
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(249, 115, 22, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

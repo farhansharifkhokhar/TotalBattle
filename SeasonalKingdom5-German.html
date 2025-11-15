@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total Battle SK Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f4; /* stone-100 */
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            color: #d6d3d1; /* stone-300 */
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #115e59; /* teal-800 */
+            color: #ffffff;
+        }
+        .nav-link-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+            stroke-width: 2;
+        }
+        .content-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .content-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1c1917; /* stone-900 */
+            padding: 1.5rem;
+            border-bottom: 1px solid #e7e5e4; /* stone-200 */
+        }
+        .content-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0f766e; /* teal-700 */
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .content-card p, .content-card li {
+            color: #44403c; /* stone-700 */
+            line-height: 1.6;
+        }
+        .content-card ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .styled-table th, .styled-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e7e5e4; /* stone-200 */
+        }
+        .styled-table th {
+            background-color: #fafaf9; /* stone-50 */
+            color: #57534e; /* stone-600 */
+            font-weight: 600;
+        }
+        .styled-table tr:last-child td {
+            border-bottom: none;
+        }
+        .styled-table td strong {
+            color: #1c1917; /* stone-900 */
+            font-weight: 600;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .main-content {
+                height: 100vh;
+                overflow-y: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="flex flex-col lg:flex-row min-h-screen">
+        
+        <button id="mobileNavToggle" class="lg:hidden p-4 bg-gray-800 text-white fixed top-0 left-0 z-20">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+        </button>
+
+        <nav id="sidebar" class="bg-[#1c1917] text-white w-full lg:w-64 fixed lg:relative z-10 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col p-4 pt-16 lg:pt-6 h-full">
+            <h1 class="text-2xl font-bold text-white mb-6 px-4">SK Guide</h1>
+            <div class="space-y-2">
+                <a href="#overview" class="nav-link active" data-target="overview">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955a1.125 1.125 0 0 1 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504 1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                    <span>Übersicht</span>
+                </a>
+                <a href="#strategy" class="nav-link" data-target="strategy">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 0 1 9.75 19.875V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+                    <span>W-Level-Strategie</span>
+                </a>
+                <a href="#accounts" class="nav-link" data-target="accounts">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A1.875 1.875 0 0 1 17.625 22.5h-11.25a1.875 1.875 0 0 1-1.875-2.382ZM19.5 11.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0v-2.25a.75.75 0 0 1 .75-.75Zm-6-1.5a.75.75 0 0 0-1.5 0v2.25a.75.75 0 0 0 1.5 0v-2.25Z" /></svg>
+                    <span>Konten & Migration</span>
+                </a>
+                <a href="#captains" class="nav-link" data-target="captains">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.602-3.748M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                    <span>Captain: Heimdall</span>
+                </a>
+                <a href="#spending" class="nav-link" data-target="spending">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V11.5a9 9 0 0 0-9-9Z" /></svg>
+                    <span>Ausgabenstrategie</span>
+                </a>
+                <a href="#points" class="nav-link" data-target="points">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9a9 9 0 0 0-9 9V9A9 9 0 0 0 9 0h6a9 9 0 0 1 9 9v9.75a9 9 0 0 1-9 9Zm-9-9a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" /></svg>
+                    <span>VP & CP Optimierung</span>
+                </a>
+                <a href="https://www.youtube.com/watch?v=keDsiIKeNIE" target="_blank" class="nav-link mt-4">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9A2.25 2.25 0 0 0 13.5 5.25h-9a2.25 2.25 0 0 0-2.25 2.25v9A2.25 2.25 0 0 0 4.5 18.75Z" /></svg>
+                    <span>Offizielles Video</span>
+                </a>
+            </div>
+        </nav>
+
+        <main class="flex-1 p-4 pt-20 lg:pt-8 lg:p-8 main-content bg-stone-100">
+
+            <div id="overview" class="page-content">
+                <div class="content-card">
+                    <h2>🛡️ SK Übersicht & Clan-Erwartungen</h2>
+                    <div class="p-6">
+                        <p class="mb-4">Das Saisonale Königreich (SK) ist eine separate, schnelle Instanz, die darauf ausgelegt ist, das Wachstum zu beschleunigen und permanente Boni (Kapitäne, Artefakte, Ausrüstung) für Ihre Hauptstadt zu belohnen. Für Spieler, die von W4 zu W7 aufsteigen, ist das SK eine massive, aber temporäre Strategieumstellung, die sich vollständig auf die **Erlangung von Tapferkeitspunkten (VP) und die Teilnahme an hochaktiven Clans** konzentriert.</p>
+                        
+                        <h3>Spielweise & Clan-Ziele</h3>
+                        <p class="mb-2">Das SK ist eine **no-ROE (Regel des Engagements) Zone** mit beschleunigten Bauzeiten (oft sofort bis Stufe 19) und Ressourcen, die auf sofortiges Wachstum ausgerichtet sind.</p>
+                        <ul>
+                            <li class="mb-2">**Hauptziel:** Steigern Sie schnell Ihr Wächter (W)-Level auf W7 und letztendlich W9, um die Turnierbelohnungen und Fragmente des Saisonkapitäns (wie Heimdall) zu maximieren.</li>
+                            <li>**Clan-Notwendigkeit:** Der Beitritt zu einem mächtigen, ausgabenfreudigen und hochaktiven SK-Clan ist **obligatorisch** für den Erfolg, insbesondere für F2P-Spieler. Ihr aktueller Clan, **BAD von K257**, wird in dieselbe SK-Instanz migrieren und kann sich neu formieren.
+                                <ul class="mt-2">
+                                    <li>**Aktion für BAD:** Wenn BAD kein engagierter SK-Clan ist, müssen seine Spieler unmittelbar nach dem Betreten des SK **vorübergehend einem Top-SK-Clan** (oft einem der Großspender) beitreten. Dies liefert essentielle Clan-Truhen, Kills des Uralten Blechmanns (für VP) und Verdammnisbaum-Rallies (für CP/Ressourcen), die Niedrig-Verbraucher nicht alleine generieren können.</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <h3>Schlüsselszenarien für die Rückkehr</h3>
+                        <div class="table-wrapper mt-4">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Szenario</th>
+                                        <th>Erklärung & Aktion</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>**A) Rückkehr in einer neuen Saison**</td>
+                                        <td>Wenn eine neue Saison beginnt, starten Sie eine **brandneue SK-Instanz** mit Stadtfortschritt auf Stufe 1. Sie können *nicht* den vorherigen Saisonfortschritt fortsetzen. Ihr Clan muss sich koordinieren, um der neuen Instanz beizutreten und sich neu zu formieren. Alle Belohnungen aus der *vorherigen* Saison wurden bereits in das Vermächtnis (Legacy) Ihres Hauptkontos übertragen.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**B) Rückkehr nach einer Pause (Mitten in der Saison)**</td>
+                                        <td>Ihr aktueller Saisonaler Stadtfortschritt bleibt auf unbestimmte Zeit zugänglich, auch nachdem die Saison offiziell beendet ist. Er wird zu einer **permanenten "Alt-Stadt"**, die mit Ihrem Haupt-Login verbunden ist. Sie können sich jederzeit wieder einloggen, um die Entwicklung fortzusetzen, getrennt vom Hauptkönigreich.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="strategy" class="page-content hidden">
+                <div class="content-card">
+                    <h2>📊 Wächter (W) Level Strategie (W4-W7 Fokus)</h2>
+                    <div class="p-6">
+                        <p class="mb-4">Dieser Abschnitt umreißt die Hauptziele für Spieler, die die Phasen W4-W7 durchlaufen. Die Kernstrategie ist der **"Ragnarök-Trick"**: Das Horten von Tapferkeitspunkten (VP) und Captain-XP bis zu einem Ragnarök-Event, um die Turnierpunkte während eines Wächter-Level-Sprungs zu maximieren.</p>
+                        
+                        <div class="table-wrapper">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Fortschrittsphase</th>
+                                        <th>Haupt-SK-Fokus & Ziele</th>
+                                        <th>Entscheidende Aktion während Ragnarök</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>**W4 zu W5**</td>
+                                        <td>**Ziel:** Die SK-Eintrittsanforderung (W5 Truppentechnologie) erfüllen und schnell die Stadttechnologie für W5 Wächter pushen.</td>
+                                        <td>Greifen Sie den Uralten Blechmann (für VP) und Wolf/Helforge (für Ragnarök-Münzen) an. Ihr unmittelbares Ziel ist die Vorbereitung auf den W6-Sprung.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**W5 zu W6**</td>
+                                        <td>**Ziel:** **Stufe 2 Söldner (Grüne Söldner)** freischalten. Diese sind unerlässlich für effizientes Monster-Jagen. Priorisieren Sie *Wächter-Forschung* (Marschgröße, HP/Angriffs/Verteidigungs-Buffs) und *Söldner-Forschung*.</td>
+                                        <td>**Führen Sie den Sprung aus:** Verwenden Sie gesparte VP und Gold, um die W6 Stadttechnologie-Beförderung während des entsprechenden Turniers eines Ragnarök-Events (z.B. Macht) zu initiieren. Dies maximiert Ihre Turnierpunktzahl und versetzt Sie in die Lage, Monster höherer Stufe zu töten.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**W6 zu W7**</td>
+                                        <td>**Ziel:** Konzentrieren Sie sich auf **Truppenstapelungs-Forschung**, Armee-/Monster-Mods und das Pushen der Akademie Stufe 35 Baupläne. W7 Truppen-Stats und Marschkapazität bieten enorme Steigerungen Ihres VP/CP-Verdienstpotenzials.</td>
+                                        <td>Verwenden Sie gesparte VP, um diesen Sprung so schnell wie möglich abzuschließen. Dieser Sprung positioniert Sie, um in nachfolgenden KvK/PvP-Events um die höchste Stufe der Eroberungspunkte (CP)-Belohnungen zu konkurrieren.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2>Wesentliche Fortschrittshürden</h2>
+                    <div class="p-6">
+                        <p class="mb-4">Wie die Tabelle oben zeigt, ist der Sprung von W5 zu W6 die kritischste Phase. Er schaltet Stufe 2 Söldner frei, was Ihre Fähigkeit, VP zu farmen, grundlegend verändert. Diese Grafik visualisiert die relative Wichtigkeit und den Fokus, die für jeden Schritt erforderlich sind.</p>
+                        <div class="chart-container">
+                            <canvas id="gLevelChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="accounts" class="page-content hidden">
+                <div class="content-card">
+                    <h2>🧑‍🤝‍🧑 Konten, Stadtmigration und Territorium</h2>
+                    <div class="p-6">
+                        <h3>Konten</h3>
+                        <ul class="space-y-3">
+                            <li>
+                                <strong>Beide Konten behalten (Haupt- und Saisonal):</strong>
+                                <p><strong>Ja, Sie behalten beide.</strong> Der SK-Fortschritt ist eine separate Stadtinstanz, die mit Ihrem bestehenden Total Battle Profil verknüpft ist. Sobald die Saison endet, wird diese neue Stadt einfach zu einer mächtigen Alt/Farm-Stadt, zu der Sie mit denselben Anmeldeinformationen wechseln können.</p>
+                            </li>
+                            <li>
+                                <strong>Neues SK-Konto:</strong>
+                                <p><strong>Ja, Total Battle stellt die neue Stadtinstanz bereit.</strong> Sie beginnen das SK mit einer Stadt der Stufe 1 und der Wächter-Technologie der Stufe 2 ist bereits abgeschlossen.</p>
+                            </li>
+                        </ul>
+
+                        <h3 class="mt-6">Stadtmigration und Territorium</h3>
+                        <ul class="space-y-3">
+                            <li>
+                                <strong>Die Saisonale Stadt in das Haupt-Clan-Territorium bringen:</strong>
+                                <p><strong>Nicht während das SK aktiv ist.</strong> Das Saisonale Königreich ist eine geografisch isolierte Karte, die ihre eigenen Wettbewerbs-Events durchführt.</p>
+                            </li>
+                            <li>
+                                <strong>Migration nach der Saison:</strong>
+                                <p>Sobald die Saison abgeschlossen ist, wird die SK-Karte aufgelöst, und Ihre Saisonale Stadt wird zu einer Standardstadt auf der Globalen Karte. Sie müssen dann einen **Königreichs-Teleporter** (mit Gold gekauft oder durch Events verdient) verwenden, um die Stadt von der Globalen Karte in Ihr Hauptkönigreich (K257) und dann in das Territorium Ihres Clans zu verschieben.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="captains" class="page-content hidden">
+                <div class="content-card">
+                    <h2>🛡️ Held/Captain Analyse: Heimdall</h2>
+                    <div class="p-6">
+                        <p class="mb-4">Heimdall ist der aktuelle Saisonale Captain, der Ihrem Hauptkonto mächtige permanente Buffs bietet. Die Besonderheiten seiner Fähigkeiten können je nach Saison leicht variieren, aber seine Rolle ist durchweg die eines **Spitzen-Truppenkommandanten und Defensiv-/Offensiv-Kraftpakets.**</p>
+                        <div class="table-wrapper">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Aspekt</th>
+                                        <th>Analyse & Machbarkeit</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>**Primäre Anwendungsfälle**</td>
+                                        <td>**Angriff & Verteidigung (PvP):** Saisonale Kapitäne sind darauf ausgelegt, in der Top-Tier-PvP-Meta relevant zu sein. Heimdalls Fähigkeiten werden Truppentypen (z.B. Fernkampfangriff/HP, Belagerungsverteidigung) stark beeinflussen.<br><br>**PVE (Blechmann/Verdammnisbaum):** Entscheidend für die Monsterjagd, da er typischerweise hohe Armeeangriffs- oder Marschgeschwindigkeits-Boni bietet, was Ihre VP/CP-Erträge maximiert.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**Fähigkeiten & Machbarkeit**</td>
+                                        <td>Seine Machbarkeit ist während der Saison **entscheidend**. Ihre Strategie besteht darin, so viele Heimdall-Fragmente wie möglich zu sammeln. Sogar ein **1-Stern-Heimdall** ist ein bedeutender permanenter Schub, der oft einzigartige Vorteile für den Fortschritt in der Hall of Fame bietet, die nicht leicht zu ersetzen sind.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**Freischalten/Fokus**</td>
+                                        <td>Sie müssen wählen, welche Vermächtnisbelohnung (Heimdall, Artefakt oder Ausrüstung) Sie maximieren möchten. Für die meisten W4-W7-Spieler ist die Fokussierung auf Heimdall auf mindestens **1 Stern** über Turnierfragmente und Pass-Belohnungen das realistischste und vorteilhafteste Ziel.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="spending" class="page-content hidden">
+                <div class="content-card">
+                    <h2>💸 Monetäre Strategie: F2P vs. Kleiner/Moderater Spender</h2>
+                    <div class="p-6">
+                        <p class="mb-6">Das SK ist darauf ausgelegt, Ausgaben zu belohnen, aber kluge Entscheidungen können Geringverdiener und F2P-Spieler erheblich fördern. Dieser Abschnitt beschreibt die besten Empfehlungen für den Kauf von Paketen.</p>
+                        
+                        <div class="lg:grid lg:grid-cols-2 lg:gap-6">
+                            <div class="border border-stone-200 rounded-lg p-6 mb-4 lg:mb-0">
+                                <h3 class="mt-0 text-xl font-bold">Free-to-Play (F2P)</h3>
+                                <p class="font-semibold text-teal-700">Priorität: Keine</p>
+                                <p class="mt-2">**Maximieren Sie die Event-Teilnahme.** Verlassen Sie sich darauf, einem starken Clan für passive Silber-/Ressourcentruhen beizutreten und die Ragnarök-/PvP-Aktivität für VP zu maximieren. Ihr Fortschritt hängt vollständig von der Zeitinvestition und der Nutzung der Vorteile hochstufiger Clans ab.</p>
+                            </div>
+                            <div class="border border-teal-600 bg-teal-50 rounded-lg p-6">
+                                <h3 class="mt-0 text-xl font-bold">Kleiner/Moderater Spender</h3>
+                                <p class="font-semibold text-teal-700">Prioritätspakete:</p>
+                                <ul class="list-decimal pl-5 mt-2 space-y-2">
+                                    <li>**Goldener Pass (OBLIGATORISCH):** Bietet den höchsten Gold-, Ressourcen- und Fragmentwert pro Dollar.</li>
+                                    <li>**Starter/Sofortbau-Erweiterung:** Spart frühzeitig *Hunderte* von Stunden an Beschleunigungen.</li>
+                                    <li>**Söldnerpakete:** (Während des AT-Events verfügbar). Grüne Söldner (W6-Freischaltung) erhöhen Ihre Effizienz beim Monster-Töten dramatisch und steigern direkt Ihr VP/CP-Einkommen.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-8">
+                            <h3>Empfohlener Fokus für Spender-Pakete</h3>
+                            <p class="mb-4">Für kleine Spender hat der "Goldene Pass" die absolut höchste Priorität und bietet den besten Wert. Diese Grafik zeigt eine empfohlene Aufteilung, worauf Sie Ihr Budget für maximale Wirkung konzentrieren sollten.</p>
+                            <div class="chart-container h-80 max-h-80">
+                                <canvas id="spendingChart"></canvas>
+                            </div>
+                        </div>
+
+                        <h3 class="mt-8">Allgemeine Methode zum Freischalten von Helden im SK</h3>
+                        <ul>
+                            <li>**Saisonale Kapitäne (Heimdall):** Fragmente werden durch **Saisonale Turnier-Ranglisten** (insbesondere Ragnarök und W-Level-Speedruns) und die bezahlte Stufe der **Goldenen/Elite-Pässe** verdient. Erworbene Fragmente sind temporäre SK-Gegenstände, die am Ende der Saison in permanente "Vermächtnis"-Fragmente für Ihre Hauptstadt umgewandelt werden.</li>
+                            <li>**Bestehende Kapitäne (Kleopatra, etc.):** Fragmente für diese Vermächtnis-Kapitäne sind im **Ragnarök-Shop** und im **CP-Event-Shop** erhältlich. Verwenden Sie VP- und CP-Währung, um deren Fragmente zu kaufen.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div id="points" class="page-content hidden">
+                <div class="content-card">
+                    <h2>🌟 VP und CP Optimierung (Tapferkeits- und Eroberungspunkte)</h2>
+                    <div class="p-6">
+                        <p class="mb-4">Ihr gesamter SK-Fortschritt hängt vom Farmen von zwei Schlüsselressourcen ab: Tapferkeitspunkten (VP) für die Forschung und Eroberungspunkten (CP) für Shop-Belohnungen.</p>
+                        
+                        <div class="table-wrapper">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Punkttyp</th>
+                                        <th>Wie man mehr erhält (Fokus-Aktionen)</th>
+                                        <th>Primäre Nutzung & SK-Strategie</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>**Tapferkeitspunkte (VP)**</td>
+                                        <td>**1. Ragnarök (Top-Quelle):** Führen Sie Ihre Stadtbeförderungen W5->W6 und W6->W7 während dieses Events durch, um die Macht-/Forschungs-Turniere zu maximieren.<br>**2. Uralter Blechmann (AT):** Greifen Sie dieses Epische Monster kontinuierlich an. Stellen Sie sicher, dass Sie den Blechmann der höchsten Stufe angreifen, den Sie erfolgreich töten können.</td>
+                                        <td>**Entscheidende Nutzung: Wächter-Forschung.** Lenken Sie fast alle VP auf das Freischalten neuer Truppentypen (T2 Söldner bei W6), die Erhöhung der Marschgröße und das Freischalten der Armeeangriffs-/HP-/Verteidigungs-Buffs.</td>
+                                    </tr>
+                                    <tr>
+                                        <td>**Eroberungspunkte (CP)**</td>
+                                        <td>**1. Königreich gegen Königreich (KvK) / PvP:** Werden durch das Töten feindlicher Truppen verdient.<br>**2. Neue CP-Events:** Saisons beinhalten immer ein neues CP-fokussiertes Monster (z.B. Verdammnisbaum oder Echo der Korruption).<br>**3. Verdammnisbaum:** Das Rallieren dieses Epischen Monsters ist eine Hauptquelle für CP.</td>
+                                        <td>**Entscheidende Nutzung: Event-Shop-Belohnungen.** CP wird primär zum Kauf von Armee-/Monster-Mods, Ressourcentruhen und Fragmenten für Saisonale und Vermächtnis-Kapitäne/Artefakte verwendet.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h3 class="mt-6">Priorisierte SK-Events für Maximalen VP/CP-Gewinn</h3>
+                        <ol class="list-decimal pl-5 space-y-3">
+                            <li>
+                                **Ragnarök:**
+                                <p>**Höchste Priorität für VP.** Sie müssen Ihre Wächter-Beförderungssprünge um dieses Event herum planen. Horten Sie VP und Captain-XP und geben Sie alles *während* des Events aus, um Ihre Punktzahl in die Höhe zu treiben.</p>
+                            </li>
+                            <li>
+                                **CP-Events (KvK, Verdammnisbaum, Echo):**
+                                <p>**Höchste Priorität für CP/Ressourcen.** Nehmen Sie stark an KvK teil (wenn Ihr Clan wettbewerbsfähig ist) und rallieren Sie aktiv das saisonale CP-Monster (Verdammnisbaum/Echo). Diese Währung sichert die Ressourcen, die zur Finanzierung Ihrer Forschung und Ihres Baus benötigt werden.</p>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.page-content');
+            const mobileNavToggle = document.getElementById('mobileNavToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            function showPage(targetId) {
+                pages.forEach(page => {
+                    if (page.id === targetId) {
+                        page.classList.remove('hidden');
+                    } else {
+                        page.classList.add('hidden');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    if (link.dataset.target === targetId) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+            }
+
+            navLinks.forEach(link => {
+                if(link.target !== '_blank') {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetId = link.dataset.target;
+                        showPage(targetId);
+                        
+                        if (window.innerWidth < 1024) {
+                            sidebar.classList.add('-translate-x-full');
+                        }
+
+                        if (targetId === 'strategy') {
+                            createGLevelChart();
+                        }
+                        if (targetId === 'spending') {
+                            createSpenderChart();
+                        }
+                    });
+                }
+            });
+
+            mobileNavToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth < 1024) {
+                    if (!sidebar.contains(e.target) && !mobileNavToggle.contains(e.target)) {
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                }
+            });
+
+            showPage('overview');
+
+            let gLevelChartInstance = null;
+            let spendingChartInstance = null;
+            
+            function wrapLabels(ctx, text, maxWidth) {
+                if (typeof text !== 'string') {
+                    return [text];
+                }
+                const words = text.split(' ');
+                const lines = [];
+                let currentLine = words[0];
+                for (let i = 1; i < words.length; i++) {
+                    const word = words[i];
+                    const width = ctx.measureText(currentLine + ' ' + word).width;
+                    if (width < maxWidth) {
+                        currentLine += ' ' + word;
+                    } else {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    }
+                }
+                lines.push(currentLine);
+                return lines;
+            }
+
+            function createGLevelChart() {
+                const ctx = document.getElementById('gLevelChart');
+                if (!ctx) return;
+                if (gLevelChartInstance) {
+                    gLevelChartInstance.destroy();
+                }
+                gLevelChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['W4 zu W5', 'W5 zu W6', 'W6 zu W7'],
+                        datasets: [{
+                            label: 'Relative Wichtigkeit / Fokus',
+                            data: [3, 10, 7],
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(20, 184, 166, 0.7)',
+                                'rgba(249, 115, 22, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(20, 184, 166, 1)',
+                                'rgba(249, 115, 22, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.x !== null) {
+                                            label += context.parsed.x;
+                                        }
+                                        if(context.label === 'W5 zu W6') {
+                                            return [label, 'Entscheidend: Schaltet T2 Söldner frei'];
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Relatives Fokus-Level'
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    autoSkip: false,
+                                    callback: function(value) {
+                                        const maxWidth = 100;
+                                        const text = this.getLabelForValue(value);
+                                        return wrapLabels(this.ctx, text, maxWidth);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function createSpenderChart() {
+                const ctx = document.getElementById('spendingChart');
+                if (!ctx) return;
+                if (spendingChartInstance) {
+                    spendingChartInstance.destroy();
+                }
+                spendingChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Goldener Pass (Obligatorisch)', 'Starter / Sofortbau-Pakete', 'Söldnerpakete'],
+                        datasets: [{
+                            label: 'Empfohlener Budgetfokus',
+                            data: [60, 25, 15],
+                            backgroundColor: [
+                                'rgba(20, 184, 166, 0.7)',
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(249, 115, 22, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(20, 184, 166, 1)',
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(249, 115, 22, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
