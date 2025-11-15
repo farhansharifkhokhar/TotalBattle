@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Total Battle SK Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutral & Teal -->
+    <!-- Application Structure Plan: A tab-based SPA with a persistent left-sidebar navigation (horizontal on mobile). This structure was chosen because the source report is a multi-section guide. Users (gamers) need to quickly jump to specific topics (e.g., "Spending," "G-Level Strategy") without scrolling a linear document. The navigation provides this direct, non-linear access, with the main content area dynamically showing the selected section's content. -->
+    <!-- Visualization & Content Choices: 1. G-Level Strategy Table (Report) -> Goal: Compare -> Viz: Horizontal Bar Chart (Chart.js) -> Interaction: None (static viz) -> Justification: To visually emphasize the relative importance/difficulty of the G5->G6 jump, which the text highlights as the main hurdle. 2. Monetary Strategy Table (Report) -> Goal: Compare/Inform -> Viz: Doughnut Chart (Chart.js) -> Interaction: None (static viz) -> Justification: To visually summarize the "Priority Packs" for spenders, reinforcing the text's "MANDATORY" label for the Golden Pass. 3. All other tables (Report) -> Goal: Inform/Organize -> Viz: Styled HTML Tables (Tailwind) -> Interaction: None -> Justification: Tables are the clearest way to present this comparative information; no complex viz needed. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f5f5f4; /* stone-100 */
+        }
+        .nav-link {
+            display: flex;
+            align-items: center;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.5rem;
+            color: #d6d3d1; /* stone-300 */
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-link:hover, .nav-link.active {
+            background-color: #115e59; /* teal-800 */
+            color: #ffffff;
+        }
+        .nav-link-icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            margin-right: 0.75rem;
+            stroke-width: 2;
+        }
+        .content-card {
+            background-color: #ffffff;
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            overflow: hidden;
+            margin-bottom: 1.5rem;
+        }
+        .content-card h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1c1917; /* stone-900 */
+            padding: 1.5rem;
+            border-bottom: 1px solid #e7e5e4; /* stone-200 */
+        }
+        .content-card h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #0f766e; /* teal-700 */
+            margin-top: 1.5rem;
+            margin-bottom: 0.75rem;
+        }
+        .content-card p, .content-card li {
+            color: #44403c; /* stone-700 */
+            line-height: 1.6;
+        }
+        .content-card ul {
+            list-style-type: disc;
+            padding-left: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        .styled-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .styled-table th, .styled-table td {
+            padding: 1rem 1.5rem;
+            text-align: left;
+            border-bottom: 1px solid #e7e5e4; /* stone-200 */
+        }
+        .styled-table th {
+            background-color: #fafaf9; /* stone-50 */
+            color: #57534e; /* stone-600 */
+            font-weight: 600;
+        }
+        .styled-table tr:last-child td {
+            border-bottom: none;
+        }
+        .styled-table td strong {
+            color: #1c1917; /* stone-900 */
+            font-weight: 600;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        @media (min-width: 1024px) {
+            .main-content {
+                height: 100vh;
+                overflow-y: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="flex flex-col lg:flex-row min-h-screen">
+        
+        <!-- Mobile Nav Toggle -->
+        <button id="mobileNavToggle" class="lg:hidden p-4 bg-gray-800 text-white fixed top-0 left-0 z-20">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
+            </svg>
+        </button>
+
+        <!-- Sidebar Navigation -->
+        <nav id="sidebar" class="bg-[#1c1917] text-white w-full lg:w-64 fixed lg:relative z-10 transform -translate-x-full lg:translate-x-0 transition-transform duration-300 ease-in-out flex flex-col p-4 pt-16 lg:pt-6 h-full">
+            <h1 class="text-2xl font-bold text-white mb-6 px-4">SK Guide</h1>
+            <div class="space-y-2">
+                <a href="#overview" class="nav-link active" data-target="overview">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m2.25 12 8.954-8.955a1.125 1.125 0 0 1 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" /></svg>
+                    <span>Overview</span>
+                </a>
+                <a href="#strategy" class="nav-link" data-target="strategy">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 0 1 3 19.875v-6.75ZM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25A1.125 1.125 0 0 1 9.75 19.875V8.625ZM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 0 1-1.125-1.125V4.125Z" /></svg>
+                    <span>G-Level Strategy</span>
+                </a>
+                <a href="#accounts" class="nav-link" data-target="accounts">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A1.875 1.875 0 0 1 17.625 22.5h-11.25a1.875 1.875 0 0 1-1.875-2.382ZM19.5 11.25a.75.75 0 0 1 .75.75v2.25a.75.75 0 0 1-1.5 0v-2.25a.75.75 0 0 1 .75-.75Zm-6-1.5a.75.75 0 0 0-1.5 0v2.25a.75.75 0 0 0 1.5 0v-2.25Z" /></svg>
+                    <span>Accounts & Migration</span>
+                </a>
+                <a href="#captains" class="nav-link" data-target="captains">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.602-3.748M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                    <span>Captain: Heimdall</span>
+                </a>
+                <a href="#spending" class="nav-link" data-target="spending">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V11.5a9 9 0 0 0-9-9Z" /></svg>
+                    <span>Spending Strategy</span>
+                </a>
+                <a href="#points" class="nav-link" data-target="points">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9a9 9 0 0 0-9 9V9A9 9 0 0 0 9 0h6a9 9 0 0 1 9 9v9.75a9 9 0 0 1-9 9Zm-9-9a2.25 2.25 0 1 0 0-4.5 2.25 2.25 0 0 0 0 4.5Z" /></svg>
+                    <span>VP & CP Optimization</span>
+                </a>
+                <a href="https://www.youtube.com/watch?v=keDsiIKeNIE" target="_blank" class="nav-link mt-4">
+                    <svg class="nav-link-icon" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="m15.75 10.5 4.72-4.72a.75.75 0 0 1 1.28.53v11.38a.75.75 0 0 1-1.28.53l-4.72-4.72M4.5 18.75h9a2.25 2.25 0 0 0 2.25-2.25v-9A2.25 2.25 0 0 0 13.5 5.25h-9a2.25 2.25 0 0 0-2.25 2.25v9A2.25 2.25 0 0 0 4.5 18.75Z" /></svg>
+                    <span>Official Video</span>
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-4 pt-20 lg:pt-8 lg:p-8 main-content bg-stone-100">
+
+            <!-- Overview Page -->
+            <div id="overview" class="page-content">
+                <div class="content-card">
+                    <h2>🛡️ SK Overview & Clan Expectations</h2>
+                    <div class="p-6">
+                        <p class="mb-4">The Seasonal Kingdom (SK) is a separate, high-speed instance designed to accelerate growth and reward permanent bonuses (Captains, Artifacts, Equipment) for your main city. For players progressing from G4 to G7, SK is a massive, but temporary, pivot in strategy focused entirely on <strong>Valor Point (VP) acquisition and high-activity clan participation</strong>.</p>
+                        
+                        <h3>How to Play & Clan Objectives</h3>
+                        <p class="mb-2">The SK is a <strong>no-ROE (Rule of Engagement)</strong> zone with accelerated building times (often instant up to Lvl 19) and resources focused on immediate growth.</p>
+                        <ul>
+                            <li class="mb-2"><strong>Primary Goal:</strong> Rapidly advance your Guardsman (G) level to G7 and ultimately G9 to maximize tournament rewards and Seasonal Captain fragments (like Heimdall).</li>
+                            <li><strong>Clan Necessity:</strong> Joining a powerful, high-spending, and highly active SK clan is <strong>mandatory</strong> for success, especially for F2P players. Your current clan, <strong>BAD from K257</strong>, will migrate to the same SK instance and can reform.
+                                <ul class="mt-2">
+                                    <li><strong>Action for BAD:</strong> If BAD is not a dedicated SK clan, its players must <strong>temporarily join a top SK clan</strong> (often one of the major spenders) immediately upon entering the SK. This provides essential clan chests, Ancient Tinman kills (for VP), and Doomtree rallies (for CP/Resources) that low-spenders cannot generate alone.</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <h3>Key Scenarios for Returning</h3>
+                        <div class="table-wrapper mt-4">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Scenario</th>
+                                        <th>Explanation & Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>A) New Season Return</strong></td>
+                                        <td>When a new season starts, you begin a <strong>brand new SK instance</strong> with Lvl 1 city progress. You <em>cannot</em> resume previous seasonal progress. Your clan must coordinate to join the new instance and reform. All rewards from the <em>previous</em> season are already transferred to your main account's Legacy.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>B) Returning after a Break (Mid-Season)</strong></td>
+                                        <td>Your current Seasonal City progress remains accessible indefinitely, even after the season officially ends. It becomes a <strong>permanent "alt city"</strong> tied to your main login. You can log back into it anytime to continue development, separate from the main kingdom.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- G-Level Strategy Page -->
+            <div id="strategy" class="page-content hidden">
+                <div class="content-card">
+                    <h2>📊 Guardsman (G) Level Strategy (G4-G7 Focus)</h2>
+                    <div class="p-6">
+                        <p class="mb-4">This section outlines the primary goals for players progressing through the G4-G7 phases. The core strategy is the <strong>"Ragnarok Trick"</strong>: hoarding Valor Points (VP) and Captain XP until a Ragnarok event to maximize tournament points during a Guardsman level leap.</p>
+                        
+                        <div class="table-wrapper">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Progression Phase</th>
+                                        <th>Key SK Focus & Goals</th>
+                                        <th>Crucial Action during Ragnarok</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>G4 to G5</strong></td>
+                                        <td><strong>Goal:</strong> Meet the SK entry requirement (G5 troop tech) and quickly push the City Tech for G5 Guard.</td>
+                                        <td>Hit Ancient Tinman (for VP) and Wolf/Helforge (for Ragnarok coins). Your immediate goal is to prepare for the G6 jump.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>G5 to G6</strong></td>
+                                        <td><strong>Goal:</strong> Unlock <strong>Tier 2 Mercenaries (Green Mercs)</strong>. These are essential for efficient monster hunting. Prioritize *Guardsman Research* (March Size, HP/Attack/Defense Buffs) and *Mercenary Research*.</td>
+                                        <td><strong>Execute the Jump:</strong> Use saved VP and gold to initiate the G6 City Tech promotion during a Ragnarok event's corresponding tournament (e.g., Might). This maximizes your tournament score and puts you in a position to kill higher-level monsters.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>G6 to G7</strong></td>
+                                        <td><strong>Goal:</strong> Focus on <strong>Troop Stacking</strong> research, Army/Monster Mods, and pushing Academy Lvl 35 blueprints. G7 troop stats and march capacity offer huge boosts to your VP/CP earning potential.</td>
+                                        <td>Use saved VP to complete this jump as quickly as possible. This jump positions you to compete for the highest tier of Conqueror Point (CP) rewards in subsequent KvK/PvP events.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <h2>Key Progression Hurdles</h2>
+                    <div class="p-6">
+                        <p class="mb-4">As the table above shows, the jump from G5 to G6 is the most critical phase. It unlocks Tier 2 Mercenaries, which fundamentally changes your ability to farm VP. This chart visualizes the relative importance and focus required for each step.</p>
+                        <div class="chart-container">
+                            <canvas id="gLevelChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Accounts & Migration Page -->
+            <div id="accounts" class="page-content hidden">
+                <div class="content-card">
+                    <h2>🧑‍🤝‍🧑 Accounts, City Migration, and Territory</h2>
+                    <div class="p-6">
+                        <h3>Accounts</h3>
+                        <ul class="space-y-3">
+                            <li>
+                                <strong>Keeping Both Accounts (Main and Seasonal):</strong>
+                                <p><strong>Yes, you keep both.</strong> The SK progress is a separate city instance tied to your existing Total Battle profile. Once the season ends, this new city simply becomes a powerful alt/farm city that you can switch to using the same login credentials.</p>
+                            </li>
+                            <li>
+                                <strong>New SK Account:</strong>
+                                <p><strong>Yes, Total Battle provides the new city instance.</strong> You start the SK with a level 1 city and level 2 Guardsman tech already complete.</p>
+                            </li>
+                        </ul>
+
+                        <h3 class="mt-6">City Migration and Territory</h3>
+                        <ul class="space-y-3">
+                            <li>
+                                <strong>Bringing Seasonal City into Main Clan Territory:</strong>
+                                <p><strong>Not while the SK is active.</strong> The Seasonal Kingdom is a geographically isolated map running its own competitive events.</p>
+                            </li>
+                            <li>
+                                <strong>Post-Season Migration:</strong>
+                                <p>Once the season concludes, the SK map is dismantled, and your Seasonal City becomes a standard city on the Global Map. You must then use a <strong>Kingdom Teleporter</strong> (purchased with Gold or earned through events) to move the city from the Global Map into your main kingdom (K257) and then within your clan's territory.</p>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Captains Page -->
+            <div id="captains" class="page-content hidden">
+                <div class="content-card">
+                    <h2>🛡️ Hero/Captain Analysis: Heimdall</h2>
+                    <div class="p-6">
+                        <p class="mb-4">Heimdall is the current Seasonal Captain, offering powerful permanent buffs to your main account. The specifics of his skills may vary slightly by season, but his role is consistently as a <strong>top-tier troop commander and defensive/offensive powerhouse.</strong></p>
+                        <div class="table-wrapper">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Aspect</th>
+                                        <th>Analysis & Viability</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Primary Use Cases</strong></td>
+                                        <td><strong>Offense & Defense (PvP):</strong> Seasonal Captains are designed to be relevant in the top-tier PvP meta. Heimdall's skills will heavily influence troop types (e.g., ranged attack/HP, siege defense).<br><br><strong>PVE (Tinman/Doomtree):</strong> Critical for monster hunting, as he typically provides high Army Attack or March Speed bonuses, maximizing your VP/CP returns.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Skills & Viability</strong></td>
+                                        <td>His viability is <strong>critical</strong> during the season. Your strategy is to gain as many Heimdall fragments as possible. Even a <strong>1-star Heimdall</strong> is a significant permanent boost, often providing unique Hall of Fame progression benefits that cannot be easily replaced.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Unlocking/Focus</strong></td>
+                                        <td>You must choose which legacy reward (Heimdall, Artifact, or Equipment) you want to maximize. For most G4-G7 players, focusing Heimdall to at least <strong>1-Star</strong> via tournament fragments and Pass rewards is the most realistic and beneficial goal.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Spending Strategy Page -->
+            <div id="spending" class="page-content hidden">
+                <div class="content-card">
+                    <h2>💸 Monetary Strategy: F2P vs. Small/Moderate Spender</h2>
+                    <div class="p-6">
+                        <p class="mb-6">The SK is designed to reward spending, but smart choices can significantly boost low-spenders and F2P players. This section details the best recommendations for pack purchases.</p>
+                        
+                        <div class="lg:grid lg:grid-cols-2 lg:gap-6">
+                            <div class="border border-stone-200 rounded-lg p-6 mb-4 lg:mb-0">
+                                <h3 class="mt-0 text-xl font-bold">Free-to-Play (F2P)</h3>
+                                <p class="font-semibold text-teal-700">Priority: None</p>
+                                <p class="mt-2"><strong>Max out event participation.</strong> Rely on joining a strong clan for passive silver/resource chests and maxing out Ragnarok/PvP activity for VP. Your progression comes entirely from time investment and leveraging high-level clan benefits.</p>
+                            </div>
+                            <div class="border border-teal-600 bg-teal-50 rounded-lg p-6">
+                                <h3 class="mt-0 text-xl font-bold">Small/Moderate Spender</h3>
+                                <p class="font-semibold text-teal-700">Priority Packs:</p>
+                                <ul class="list-decimal pl-5 mt-2 space-y-2">
+                                    <li><strong>Golden Pass (MANDATORY):</strong> Offers the highest Gold, resource, and fragment value per dollar.</li>
+                                    <li><strong>Starter/Instant Build Extension:</strong> Saves *hundreds* of hours of speed-ups early.</li>
+                                    <li><strong>Mercenary Packs:</strong> (Available during AT event). Green Mercs (G6 unlock) dramatically increase your monster kill efficiency, directly boosting your VP/CP income.</li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="mt-8">
+                            <h3>Recommended Spender Pack Focus</h3>
+                            <p class="mb-4">For small spenders, the "Golden Pass" is the absolute highest priority, providing the best value. This chart shows a recommended breakdown of where to focus your budget for maximum impact.</p>
+                            <div class="chart-container h-80 max-h-80">
+                                <canvas id="spendingChart"></canvas>
+                            </div>
+                        </div>
+
+                        <h3 class="mt-8">General Method for Unlocking Heroes in the SK</h3>
+                        <ul>
+                            <li><strong>Seasonal Captains (Heimdall):</strong> Fragments are earned through <strong>Seasonal Tournament Rankings</strong> (especially Ragnarok and G-level speed runs) and the paid track of the <strong>Golden/Elite Passes</strong>. Fragments earned are temporary SK items that convert to permanent "Legacy" fragments for your main city at season's end.</li>
+                            <li><strong>Existing Captains (Cleopatra, etc.):</strong> Fragments for these legacy Captains are available in the <strong>Ragnarok Shop</strong> and the <strong>CP Event Shop</strong>. Use VP and CP currency to purchase their fragments.</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Points Page -->
+            <div id="points" class="page-content hidden">
+                <div class="content-card">
+                    <h2>🌟 VP and CP Optimization (Valor and Conqueror Points)</h2>
+                    <div class="p-6">
+                        <p class="mb-4">Your entire SK progression relies on farming two key resources: Valor Points (VP) for research and Conqueror Points (CP) for shop rewards.</p>
+                        
+                        <div class="table-wrapper">
+                            <table class="styled-table">
+                                <thead>
+                                    <tr>
+                                        <th>Point Type</th>
+                                        <th>How to Get More (Focus Actions)</th>
+                                        <th>Primary Use & SK Strategy</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Valor Points (VP)</strong></td>
+                                        <td><strong>1. Ragnarok (Top Source):</strong> Execute your G5->G6 and G6->G7 City promotions during this event to maximize the Might/Research tournaments.<br><strong>2. Ancient Tinman (AT):</strong> Continuously hit this Epic Monster. Ensure you are hitting the highest level AT you can successfully kill.</td>
+                                        <td><strong>Crucial Use: Guardsman Research.</strong> Direct nearly all VP toward unlocking new troop types (T2 Mercs at G6), increasing march size, and unlocking the Army Attack/HP/Defense buffs.</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Conqueror Points (CP)</strong></td>
+                                        <td><strong>1. Kingdom vs. Kingdom (KvK) / PvP:</strong> Earned by killing enemy troops.<br><strong>2. New CP Events:</strong> Seasons always feature a new CP-focused monster (e.g., Doomtree or Echo of Corruption).<br><strong>3. Doomtree:</strong> Rallying this Epic Monster is a major source of CP.</td>
+                                        <td><strong>Crucial Use: Event Shop Rewards.</strong> CP is primarily used to purchase Army/Monster Mods, resource chests, and fragments for Seasonal and Legacy Captains/Artifacts.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <h3 class="mt-6">Prioritized SK Events for Maximum VP/CP Gain</h3>
+                        <ol class="list-decimal pl-5 space-y-3">
+                            <li>
+                                <strong>Ragnarok:</strong>
+                                <p><strong>Highest Priority for VP.</strong> You must plan your Guardsman promotion jumps around this event. Hoard VP and Captain XP, then spend it all *during* the event to spike your score.</p>
+                            </li>
+                            <li>
+                                <strong>CP Events (KvK, Doomtree, Echo):</strong>
+                                <p><strong>Highest Priority for CP/Resources.</strong> Participate heavily in KvK (if your clan is competitive) and actively rally the seasonal CP monster (Doomtree/Echo). This currency secures the resources needed to fuel your research and building.</p>
+                            </li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const navLinks = document.querySelectorAll('.nav-link');
+            const pages = document.querySelectorAll('.page-content');
+            const mobileNavToggle = document.getElementById('mobileNavToggle');
+            const sidebar = document.getElementById('sidebar');
+
+            function showPage(targetId) {
+                pages.forEach(page => {
+                    if (page.id === targetId) {
+                        page.classList.remove('hidden');
+                    } else {
+                        page.classList.add('hidden');
+                    }
+                });
+
+                navLinks.forEach(link => {
+                    if (link.dataset.target === targetId) {
+                        link.classList.add('active');
+                    } else {
+                        link.classList.remove('active');
+                    }
+                });
+            }
+
+            navLinks.forEach(link => {
+                if(link.target !== '_blank') {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const targetId = link.dataset.target;
+                        showPage(targetId);
+                        
+                        if (window.innerWidth < 1024) {
+                            sidebar.classList.add('-translate-x-full');
+                        }
+
+                        if (targetId === 'strategy') {
+                            createGLevelChart();
+                        }
+                        if (targetId === 'spending') {
+                            createSpenderChart();
+                        }
+                    });
+                }
+            });
+
+            mobileNavToggle.addEventListener('click', () => {
+                sidebar.classList.toggle('-translate-x-full');
+            });
+            
+            document.addEventListener('click', (e) => {
+                if (window.innerWidth < 1024) {
+                    if (!sidebar.contains(e.target) && !mobileNavToggle.contains(e.target)) {
+                        sidebar.classList.add('-translate-x-full');
+                    }
+                }
+            });
+
+            showPage('overview');
+
+            let gLevelChartInstance = null;
+            let spendingChartInstance = null;
+            
+            function wrapLabels(ctx, text, maxWidth) {
+                if (typeof text !== 'string') {
+                    return [text];
+                }
+                const words = text.split(' ');
+                const lines = [];
+                let currentLine = words[0];
+                for (let i = 1; i < words.length; i++) {
+                    const word = words[i];
+                    const width = ctx.measureText(currentLine + ' ' + word).width;
+                    if (width < maxWidth) {
+                        currentLine += ' ' + word;
+                    } else {
+                        lines.push(currentLine);
+                        currentLine = word;
+                    }
+                }
+                lines.push(currentLine);
+                return lines;
+            }
+
+            function createGLevelChart() {
+                const ctx = document.getElementById('gLevelChart');
+                if (!ctx) return;
+                if (gLevelChartInstance) {
+                    gLevelChartInstance.destroy();
+                }
+                gLevelChartInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['G4 to G5', 'G5 to G6', 'G6 to G7'],
+                        datasets: [{
+                            label: 'Relative Importance / Focus',
+                            data: [3, 10, 7],
+                            backgroundColor: [
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(20, 184, 166, 0.7)',
+                                'rgba(249, 115, 22, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(20, 184, 166, 1)',
+                                'rgba(249, 115, 22, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        indexAxis: 'y',
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.x !== null) {
+                                            label += context.parsed.x;
+                                        }
+                                        if(context.label === 'G5 to G6') {
+                                            return [label, 'Crucial: Unlocks T2 Mercs'];
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            x: {
+                                beginAtZero: true,
+                                title: {
+                                    display: true,
+                                    text: 'Relative Focus Level'
+                                }
+                            },
+                            y: {
+                                ticks: {
+                                    autoSkip: false,
+                                    callback: function(value) {
+                                        const maxWidth = 100;
+                                        const text = this.getLabelForValue(value);
+                                        return wrapLabels(this.ctx, text, maxWidth);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+
+            function createSpenderChart() {
+                const ctx = document.getElementById('spendingChart');
+                if (!ctx) return;
+                if (spendingChartInstance) {
+                    spendingChartInstance.destroy();
+                }
+                spendingChartInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Golden Pass (Mandatory)', 'Starter / Instant Build Packs', 'Mercenary Packs'],
+                        datasets: [{
+                            label: 'Recommended Budget Focus',
+                            data: [60, 25, 15],
+                            backgroundColor: [
+                                'rgba(20, 184, 166, 0.7)',
+                                'rgba(59, 130, 246, 0.7)',
+                                'rgba(249, 115, 22, 0.7)'
+                            ],
+                            borderColor: [
+                                'rgba(20, 184, 166, 1)',
+                                'rgba(59, 130, 246, 1)',
+                                'rgba(249, 115, 22, 1)'
+                            ],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    padding: 20
+                                }
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed !== null) {
+                                            label += context.parsed + '%';
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
